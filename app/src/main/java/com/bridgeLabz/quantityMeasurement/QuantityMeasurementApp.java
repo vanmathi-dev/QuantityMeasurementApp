@@ -4,46 +4,56 @@ public class QuantityMeasurementApp {
 
     public static void main(String[] args) {
 
-        demonstrateAddition();
+        demonstrateTemperatureEquality();
 
-        demonstrateSubtraction();
+        demonstrateTemperatureConversion();
 
-        demonstrateDivision();
+        demonstrateUnsupportedTemperatureOperations();
     }
 
-    private static void demonstrateAddition() {
+    private static void demonstrateTemperatureEquality() {
 
-        Quantity<LengthUnit> length1 =
-                new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<TemperatureUnit> celsius =
+                new Quantity<>(0.0, TemperatureUnit.CELSIUS);
 
-        Quantity<LengthUnit> length2 =
-                new Quantity<>(12.0, LengthUnit.INCHES);
+        Quantity<TemperatureUnit> fahrenheit =
+                new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT);
 
         System.out.println(
-                length1.add(length2));
+                "0°C equals 32°F : "
+                        + celsius.equals(fahrenheit)
+        );
     }
 
-    private static void demonstrateSubtraction() {
+    private static void demonstrateTemperatureConversion() {
 
-        Quantity<LengthUnit> length1 =
-                new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<TemperatureUnit> celsius =
+                new Quantity<>(100.0, TemperatureUnit.CELSIUS);
 
-        Quantity<LengthUnit> length2 =
-                new Quantity<>(6.0, LengthUnit.INCHES);
+        Quantity<TemperatureUnit> fahrenheit =
+                celsius.convertTo(TemperatureUnit.FAHRENHEIT);
 
         System.out.println(
-                length1.subtract(length2));
+                "100°C in Fahrenheit : "
+                        + fahrenheit
+        );
     }
 
-    private static void demonstrateDivision() {
+    private static void demonstrateUnsupportedTemperatureOperations() {
 
-        Quantity<LengthUnit> length1 =
-                new Quantity<>(24.0, LengthUnit.INCHES);
+        try {
 
-        Quantity<LengthUnit> length2 =
-                new Quantity<>(2.0, LengthUnit.FEET);
+            Quantity<TemperatureUnit> t1 =
+                    new Quantity<>(100.0, TemperatureUnit.CELSIUS);
 
-        System.out.println(
-                length1.divide(length2));
+            Quantity<TemperatureUnit> t2 =
+                    new Quantity<>(50.0, TemperatureUnit.CELSIUS);
+
+            t1.add(t2);
+
+        } catch (UnsupportedOperationException ex) {
+
+            System.out.println(ex.getMessage());
+        }
     }
 }

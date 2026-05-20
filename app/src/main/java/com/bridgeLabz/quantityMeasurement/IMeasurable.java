@@ -2,11 +2,16 @@ package com.bridgeLabz.quantityMeasurement;
 
 public interface IMeasurable {
 
-    double getConversionFactor();
-
     double convertToBaseUnit(double value);
 
     double convertFromBaseUnit(double baseValue);
 
-    String getUnitName();
+    default boolean supportsArithmetic() {
+        SupportsArithmetic supportsArithmetic = () -> true;
+        return supportsArithmetic.isSupported();
+    }
+
+    default void validateOperationSupport(String operation) {
+        // Default implementation allows all operations
+    }
 }

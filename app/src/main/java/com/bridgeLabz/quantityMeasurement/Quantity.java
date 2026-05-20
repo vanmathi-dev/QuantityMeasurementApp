@@ -1,18 +1,22 @@
 package com.bridgeLabz.quantityMeasurement;
 
-import java.util.function.DoubleBinaryOperator;
+import java.util.Objects;
 
 public class Quantity<U extends IMeasurable> {
+
+    private static final double EPSILON = 0.01;
 
     private final double value;
     private final U unit;
 
     public Quantity(double value, U unit) {
 
-        validateFinite(value);
-
         if (unit == null) {
-            throw new IllegalArgumentException("Unit cannot be null");
+            throw new IllegalArgumentException("Unit cannot be null.");
+        }
+
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            throw new IllegalArgumentException("Invalid numeric value.");
         }
 
         this.value = value;
@@ -27,11 +31,20 @@ public class Quantity<U extends IMeasurable> {
         return unit;
     }
 
-    /*
-     * =========================================================
-     *                  ADD OPERATIONS
-     * =========================================================
-     */
+    public Quantity<U> convertTo(U targetUnit) {
+
+        if (targetUnit == null) {
+            throw new IllegalArgumentException("Target unit cannot be null.");
+        }
+
+        double baseValue = unit.convertToBaseUnit(value);
+        double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
+
+        return new Quantity<>(
+                roundToTwoDecimals(convertedValue),
+                targetUnit
+        );
+    }
 
     public Quantity<U> add(Quantity<U> other) {
         return add(other, this.unit);
@@ -39,24 +52,21 @@ public class Quantity<U extends IMeasurable> {
 
     public Quantity<U> add(Quantity<U> other, U targetUnit) {
 
-        validateArithmeticOperands(other, targetUnit, true);
+        validateArithmeticOperands(other, targetUnit);
 
-        double baseResult =
-                performBaseArithmetic(other, ArithmeticOperation.ADD);
+        double baseResult = performBaseArithmetic(
+                other,
+                ArithmeticOperation.ADD
+        );
 
         double convertedResult =
                 targetUnit.convertFromBaseUnit(baseResult);
 
         return new Quantity<>(
                 roundToTwoDecimals(convertedResult),
-                targetUnit);
+                targetUnit
+        );
     }
-
-    /*
-     * =========================================================
-     *               SUBTRACTION OPERATIONS
-     * =========================================================
-     */
 
     public Quantity<U> subtract(Quantity<U> other) {
         return subtract(other, this.unit);
@@ -64,150 +74,85 @@ public class Quantity<U extends IMeasurable> {
 
     public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
 
-        validateArithmeticOperands(other, targetUnit, true);
+        validateArithmeticOperands(other, targetUnit);
 
-        double baseResult =
-                performBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
+        double baseResult = performBaseArithmetic(
+                other,
+                ArithmeticOperation.SUBTRACT
+        );
 
         double convertedResult =
                 targetUnit.convertFromBaseUnit(baseResult);
 
         return new Quantity<>(
                 roundToTwoDecimals(convertedResult),
-                targetUnit);
+                targetUnit
+        );
     }
-
-    /*
-     * =========================================================
-     *                 DIVISION OPERATION
-     * =========================================================
-     */
 
     public double divide(Quantity<U> other) {
 
-        validateArithmeticOperands(other, null, false);
+        validateArithmeticOperands(other, this.unit);
 
         return performBaseArithmetic(
                 other,
-                ArithmeticOperation.DIVIDE);
+                ArithmeticOperation.DIVIDE
+        );
     }
-
-    /*
-     * =========================================================
-     *             CENTRALIZED VALIDATION HELPER
-     * =========================================================
-     */
 
     private void validateArithmeticOperands(
             Quantity<U> other,
-            U targetUnit,
-            boolean validateTargetUnit) {
+            U targetUnit
+    ) {
 
         if (other == null) {
-            throw new IllegalArgumentException("Quantity cannot be null");
+            throw new IllegalArgumentException(
+                    "Other quantity cannot be null."
+            );
         }
 
-        if (other.unit == null) {
-            throw new IllegalArgumentException("Other unit cannot be null");
+        if (targetUnit == null) {
+            throw new IllegalArgumentException(
+                    "Target unit cannot be null."
+            );
         }
 
         if (!unit.getClass().equals(other.unit.getClass())) {
             throw new IllegalArgumentException(
-                    "Cannot perform arithmetic on different measurement categories");
+                    "Cross-category arithmetic is not allowed."
+            );
         }
 
-        validateFinite(this.value);
-        validateFinite(other.value);
+        if (!unit.supportsArithmetic()) {
+            unit.validateOperationSupport("arithmetic");
+        }
 
-        if (validateTargetUnit && targetUnit == null) {
+        if (Double.isNaN(other.value)
+                || Double.isInfinite(other.value)) {
+
             throw new IllegalArgumentException(
-                    "Target unit cannot be null");
+                    "Invalid numeric value."
+            );
         }
     }
-
-    /*
-     * =========================================================
-     *             CENTRALIZED ARITHMETIC HELPER
-     * =========================================================
-     */
 
     private double performBaseArithmetic(
             Quantity<U> other,
-            ArithmeticOperation operation) {
+            ArithmeticOperation operation
+    ) {
 
-        double thisBaseValue =
+        double thisBase =
                 unit.convertToBaseUnit(this.value);
 
-        double otherBaseValue =
+        double otherBase =
                 other.unit.convertToBaseUnit(other.value);
 
-        return operation.compute(
-                thisBaseValue,
-                otherBaseValue);
+        return operation.compute(thisBase, otherBase);
     }
-
-    /*
-     * =========================================================
-     *                    ROUNDING HELPER
-     * =========================================================
-     */
 
     private double roundToTwoDecimals(double value) {
         return Math.round(value * 100.0) / 100.0;
     }
-
-    /*
-     * =========================================================
-     *                 FINITE VALUE VALIDATION
-     * =========================================================
-     */
-
-    private void validateFinite(double value) {
-
-        if (Double.isNaN(value) || Double.isInfinite(value)) {
-            throw new IllegalArgumentException(
-                    "Value must be finite");
-        }
-    }
-
-    /*
-     * =========================================================
-     *                ARITHMETIC OPERATION ENUM
-     * =========================================================
-     */
-
-    private enum ArithmeticOperation {
-
-        ADD((a, b) -> a + b),
-
-        SUBTRACT((a, b) -> a - b),
-
-        DIVIDE((a, b) -> {
-
-            if (b == 0) {
-                throw new ArithmeticException(
-                        "Division by zero is not allowed");
-            }
-
-            return a / b;
-        });
-
-        private final DoubleBinaryOperator operator;
-
-        ArithmeticOperation(DoubleBinaryOperator operator) {
-            this.operator = operator;
-        }
-
-        public double compute(double a, double b) {
-            return operator.applyAsDouble(a, b);
-        }
-    }
-
-    /*
-     * =========================================================
-     *                 EQUALS & HASHCODE
-     * =========================================================
-     */
 
     @Override
     public boolean equals(Object obj) {
@@ -216,7 +161,11 @@ public class Quantity<U extends IMeasurable> {
             return true;
         }
 
-        if (!(obj instanceof Quantity<?> otherQuantity)) {
+        if (!(obj instanceof Quantity<?> other)) {
+            return false;
+        }
+
+        if (!unit.getClass().equals(other.unit.getClass())) {
             return false;
         }
 
@@ -224,25 +173,22 @@ public class Quantity<U extends IMeasurable> {
                 unit.convertToBaseUnit(this.value);
 
         double otherBase =
-                otherQuantity.unit()
-                        .convertToBaseUnit(otherQuantity.value());
+                other.unit.convertToBaseUnit(other.value);
 
-        return Math.abs(thisBase - otherBase) < 0.0001;
+        return Math.abs(thisBase - otherBase) < EPSILON;
     }
 
-    public U unit() {
-        return unit;
-    }
-
-    public double value() {
-        return value;
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                roundToTwoDecimals(
+                        unit.convertToBaseUnit(value)
+                )
+        );
     }
 
     @Override
     public String toString() {
-        return "Quantity{" +
-                "value=" + value +
-                ", unit=" + unit +
-                '}';
+        return "Quantity(" + value + ", " + unit + ")";
     }
 }
