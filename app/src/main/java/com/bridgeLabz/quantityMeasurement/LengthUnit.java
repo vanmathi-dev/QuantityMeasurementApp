@@ -1,39 +1,35 @@
 package com.bridgeLabz.quantityMeasurement;
 
-// LengthUnit.java
+public enum LengthUnit implements IMeasurable {
 
-/**
- * Standalone enum responsible for all length unit conversions.
- * Base Unit = FEET
- */
-public enum LengthUnit {
+    FEET(12.0),
+    INCHES(1.0),
+    YARDS(36.0),
+    CENTIMETERS(0.393701);
 
-    FEET(1.0),
-    INCHES(1.0 / 12.0),
-    YARDS(3.0),
-    CENTIMETERS(1.0 / 30.48);
+    private final double conversionFactor;
 
-    private final double conversionFactorToFeet;
-
-    LengthUnit(double conversionFactorToFeet) {
-        this.conversionFactorToFeet = conversionFactorToFeet;
+    LengthUnit(double conversionFactor) {
+        this.conversionFactor = conversionFactor;
     }
 
+    @Override
     public double getConversionFactor() {
-        return conversionFactorToFeet;
+        return conversionFactor;
     }
 
-    /**
-     * Converts value from current unit to base unit (FEET)
-     */
+    @Override
     public double convertToBaseUnit(double value) {
-        return value * conversionFactorToFeet;
+        return value * conversionFactor;
     }
 
-    /**
-     * Converts value from base unit (FEET) to current unit
-     */
+    @Override
     public double convertFromBaseUnit(double baseValue) {
-        return baseValue / conversionFactorToFeet;
+        return baseValue / conversionFactor;
+    }
+
+    @Override
+    public String getUnitName() {
+        return this.name();
     }
 }

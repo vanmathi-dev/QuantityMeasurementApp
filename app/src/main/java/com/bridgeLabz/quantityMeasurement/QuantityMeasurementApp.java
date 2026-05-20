@@ -2,44 +2,83 @@ package com.bridgeLabz.quantityMeasurement;
 
 public class QuantityMeasurementApp {
 
+    public static <U extends IMeasurable>
+    void demonstrateEquality(Quantity<U> q1,
+                             Quantity<U> q2) {
+
+        System.out.println(q1 + " equals " + q2 +
+                " -> " + q1.equals(q2));
+    }
+
+    public static <U extends IMeasurable>
+    void demonstrateConversion(Quantity<U> quantity,
+                               U targetUnit) {
+
+        System.out.println(quantity + " converted to "
+                + targetUnit.getUnitName()
+                + " -> "
+                + quantity.convertTo(targetUnit));
+    }
+
+    public static <U extends IMeasurable>
+    void demonstrateAddition(Quantity<U> q1,
+                             Quantity<U> q2,
+                             U targetUnit) {
+
+        System.out.println(q1 + " + " + q2 +
+                " -> " + q1.add(q2, targetUnit));
+    }
+
     public static void main(String[] args) {
 
-        QuantityWeight kilogram =
-                new QuantityWeight(1.0,
-                        WeightUnit.KILOGRAM);
+        System.out.println("===== LENGTH OPERATIONS =====");
 
-        QuantityWeight gram =
-                new QuantityWeight(1000.0,
-                        WeightUnit.GRAM);
+        Quantity<LengthUnit> oneFoot =
+                new Quantity<>(1.0, LengthUnit.FEET);
 
-        QuantityWeight pound =
-                new QuantityWeight(2.20462,
-                        WeightUnit.POUND);
+        Quantity<LengthUnit> twelveInches =
+                new Quantity<>(12.0, LengthUnit.INCHES);
 
-        // Equality
+        demonstrateEquality(oneFoot, twelveInches);
+
+        demonstrateConversion(oneFoot,
+                LengthUnit.INCHES);
+
+        demonstrateAddition(oneFoot,
+                twelveInches,
+                LengthUnit.FEET);
+
+        System.out.println();
+
+        System.out.println("===== WEIGHT OPERATIONS =====");
+
+        Quantity<WeightUnit> oneKg =
+                new Quantity<>(1.0, WeightUnit.KILOGRAM);
+
+        Quantity<WeightUnit> thousandGram =
+                new Quantity<>(1000.0, WeightUnit.GRAM);
+
+        demonstrateEquality(oneKg, thousandGram);
+
+        demonstrateConversion(oneKg,
+                WeightUnit.GRAM);
+
+        demonstrateAddition(oneKg,
+                thousandGram,
+                WeightUnit.KILOGRAM);
+
+        System.out.println();
+
+        System.out.println("===== CROSS CATEGORY CHECK =====");
+
+        Quantity<LengthUnit> length =
+                new Quantity<>(1.0, LengthUnit.FEET);
+
+        Quantity<WeightUnit> weight =
+                new Quantity<>(1.0, WeightUnit.KILOGRAM);
+
         System.out.println(
-                kilogram.equals(gram)
-        );
-
-        // Conversion
-        System.out.println(
-                kilogram.convertTo(WeightUnit.GRAM)
-        );
-
-        // Addition
-        System.out.println(
-                kilogram.add(gram)
-        );
-
-        // Addition with target unit
-        System.out.println(
-                kilogram.add(gram,
-                        WeightUnit.POUND)
-        );
-
-        // Pound to kilogram conversion
-        System.out.println(
-                pound.convertTo(WeightUnit.KILOGRAM)
+                length.equals(weight)
         );
     }
 }
