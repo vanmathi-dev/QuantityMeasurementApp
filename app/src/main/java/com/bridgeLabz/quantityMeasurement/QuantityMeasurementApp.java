@@ -6,15 +6,16 @@ public class QuantityMeasurementApp {
     void demonstrateEquality(Quantity<U> q1,
                              Quantity<U> q2) {
 
-        System.out.println(q1 + " equals " + q2 +
-                " -> " + q1.equals(q2));
+        System.out.println(q1 + " equals " + q2
+                + " -> " + q1.equals(q2));
     }
 
     public static <U extends IMeasurable>
     void demonstrateConversion(Quantity<U> quantity,
                                U targetUnit) {
 
-        System.out.println(quantity + " converted to "
+        System.out.println(quantity
+                + " converted to "
                 + targetUnit.getUnitName()
                 + " -> "
                 + quantity.convertTo(targetUnit));
@@ -25,13 +26,16 @@ public class QuantityMeasurementApp {
                              Quantity<U> q2,
                              U targetUnit) {
 
-        System.out.println(q1 + " + " + q2 +
-                " -> " + q1.add(q2, targetUnit));
+        System.out.println(q1 + " + " + q2
+                + " -> "
+                + q1.add(q2, targetUnit));
     }
 
     public static void main(String[] args) {
 
-        System.out.println("===== LENGTH OPERATIONS =====");
+        // ================= LENGTH =================
+
+        System.out.println("===== LENGTH =====");
 
         Quantity<LengthUnit> oneFoot =
                 new Quantity<>(1.0, LengthUnit.FEET);
@@ -48,9 +52,9 @@ public class QuantityMeasurementApp {
                 twelveInches,
                 LengthUnit.FEET);
 
-        System.out.println();
+        // ================= WEIGHT =================
 
-        System.out.println("===== WEIGHT OPERATIONS =====");
+        System.out.println("\n===== WEIGHT =====");
 
         Quantity<WeightUnit> oneKg =
                 new Quantity<>(1.0, WeightUnit.KILOGRAM);
@@ -67,9 +71,44 @@ public class QuantityMeasurementApp {
                 thousandGram,
                 WeightUnit.KILOGRAM);
 
-        System.out.println();
+        // ================= VOLUME =================
 
-        System.out.println("===== CROSS CATEGORY CHECK =====");
+        System.out.println("\n===== VOLUME =====");
+
+        Quantity<VolumeUnit> oneLitre =
+                new Quantity<>(1.0, VolumeUnit.LITRE);
+
+        Quantity<VolumeUnit> thousandMilli =
+                new Quantity<>(1000.0,
+                        VolumeUnit.MILLILITRE);
+
+        Quantity<VolumeUnit> oneGallon =
+                new Quantity<>(1.0,
+                        VolumeUnit.GALLON);
+
+        // Equality
+        demonstrateEquality(oneLitre,
+                thousandMilli);
+
+        // Conversion
+        demonstrateConversion(oneLitre,
+                VolumeUnit.MILLILITRE);
+
+        demonstrateConversion(oneGallon,
+                VolumeUnit.LITRE);
+
+        // Addition
+        demonstrateAddition(oneLitre,
+                thousandMilli,
+                VolumeUnit.LITRE);
+
+        demonstrateAddition(oneLitre,
+                oneGallon,
+                VolumeUnit.MILLILITRE);
+
+        // ================= CATEGORY CHECK =================
+
+        System.out.println("\n===== CATEGORY CHECK =====");
 
         Quantity<LengthUnit> length =
                 new Quantity<>(1.0, LengthUnit.FEET);
@@ -78,7 +117,11 @@ public class QuantityMeasurementApp {
                 new Quantity<>(1.0, WeightUnit.KILOGRAM);
 
         System.out.println(
-                length.equals(weight)
+                oneLitre.equals(length)
+        );
+
+        System.out.println(
+                oneLitre.equals(weight)
         );
     }
 }
