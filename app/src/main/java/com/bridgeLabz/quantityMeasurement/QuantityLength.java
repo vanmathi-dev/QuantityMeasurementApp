@@ -1,5 +1,4 @@
-package org.eg;
-
+package com.bridgeLabz.quantityMeasurement;
 // QuantityLength.java
 
 import java.util.Objects;
