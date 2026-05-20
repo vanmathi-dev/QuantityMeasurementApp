@@ -1,10 +1,10 @@
 package com.bridgeLabz.quantityMeasurement;
 
-public enum WeightUnit {
+public enum WeightUnit implements IMeasurable {
 
-    KILOGRAM(1.0),
-    GRAM(0.001),
-    POUND(0.453592);
+    KILOGRAM(1000.0),
+    GRAM(1.0),
+    TONNE(1_000_000.0);
 
     private final double conversionFactor;
 
@@ -12,17 +12,23 @@ public enum WeightUnit {
         this.conversionFactor = conversionFactor;
     }
 
+    @Override
     public double getConversionFactor() {
         return conversionFactor;
     }
 
-    // Convert current unit to base unit (Kilogram)
+    @Override
     public double convertToBaseUnit(double value) {
         return value * conversionFactor;
     }
 
-    // Convert from kilogram to target unit
+    @Override
     public double convertFromBaseUnit(double baseValue) {
         return baseValue / conversionFactor;
+    }
+
+    @Override
+    public String getUnitName() {
+        return this.name();
     }
 }
